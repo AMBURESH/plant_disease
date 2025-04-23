@@ -50,32 +50,32 @@ class PlantDiseasesCNN(nn.Module):
         self.fc2 = nn.Linear(512, 256)
         self.fc3 = nn.Linear(256, 128)
         self.fc4 = nn.Linear(128, 64)
-        self.fc5 = nn.Linear(64, 38)  # 38 classes
+        self.fc5 = nn.Linear(64, 38) 
         self.dropout = nn.Dropout(0.2)
         self.relu = nn.ReLU()
 
     def _get_conv_output(self):
-        dummy_input = torch.randn(1, 3, 224, 224)  # Batch size = 1
+        dummy_input = torch.randn(1, 3, 224, 224)  
         out = self.conv1(dummy_input)
         out = self.pool_1(out)
         out = self.conv2(out)
         out = self.pool_2(out)
         out = self.conv3(out)
         out = self.pool_3(out)
-        self._to_linear = out.numel()  # Get flattened output size
+        self._to_linear = out.numel()  
 
     def forward(self, x):
         x = self.pool_1(self.conv1(x))
         x = self.pool_2(self.conv2(x))
         x = self.pool_3(self.conv3(x))
 
-        x = x.view(-1, self._to_linear)  # Flatten
+        x = x.view(-1, self._to_linear)  
         x = self.relu(self.fc1(x))
-        x = self.dropout(x)  # Fix: Changed variable name X -> x
+        x = self.dropout(x)  
         x = self.relu(self.fc2(x))
         x = self.relu(self.fc3(x))
         x = self.relu(self.fc4(x))
-        x = self.fc5(x)  # Removed softmax (CrossEntropyLoss applies it internally)
+        x = self.fc5(x)  
         return x
 
 # Initialize Model
@@ -87,14 +87,14 @@ model.to(device)
 
 # Loss Function and Optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.0001)  # Lowered LR
+optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.0001)  
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
 
 # Training Loop
 num_epochs = 20
 for epoch in range(1, num_epochs + 1):
     total_loss = 0
-    model.train()  # Set to training mode
+    model.train() 
     for imgs, labels in train_loader:
         imgs, labels = imgs.to(device), labels.to(device)
         optimizer.zero_grad()
@@ -104,11 +104,11 @@ for epoch in range(1, num_epochs + 1):
         optimizer.step()
         total_loss += loss.item()
 
-    scheduler.step()  # Adjust learning rate
+    scheduler.step()  
     print(f"Epoch {epoch}/{num_epochs}, Loss: {total_loss:.4f}")
 
 # Testing Loop
-model.eval()  # Set to evaluation mode
+model.eval()  
 correct_predictions = 0
 total_samples = 0
 total_loss = 0
